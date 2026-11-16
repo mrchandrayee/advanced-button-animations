@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Advanced Button Animations</title>
+<style>
+:root{--bg:#080d19;--panel:#0d1525;--line:#1e293b;--muted:#78869f;--text:#e6edf8;--accent:#ff8a22}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#050912;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;padding:34px 18px}
+.app{width:min(100%,1000px);margin:auto}
+h1{font-size:clamp(24px,4vw,34px);letter-spacing:-1.2px;color:#dceaff;margin:0 0 28px;font-weight:800}
+.demo{border:1px solid var(--accent);border-radius:3px;overflow:hidden;background:var(--panel);box-shadow:0 0 0 1px #ff8a2218,0 18px 60px #0008}
+.tabs{display:flex;align-items:center;justify-content:space-around;gap:4px;padding:10px 12px;background:#121d30;border-bottom:1px solid #263449;flex-wrap:wrap}
+.tab{border:0;border-radius:4px;background:transparent;color:#8795ad;padding:9px 13px;font-size:12px;font-weight:650;cursor:pointer;transition:.2s}
+.tab:hover{color:white;background:#1d2a40}
+.tab.active{background:#f4f6fb;color:#101827;box-shadow:0 1px 5px #0005}
+.stage{height:205px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:23px;background:#0c1525;border-bottom:1px solid #202c40;position:relative}
+.eyebrow{font-size:9px;letter-spacing:2px;font-weight:800;color:#77859d}
+button.demo-btn{font:700 11px/1 system-ui;letter-spacing:.15px;cursor:pointer;outline:none}
+.btn-liquid{position:relative;isolation:isolate;overflow:hidden;padding:13px 23px;border:0;border-radius:8px;background:#020817;color:#fff;box-shadow:0 5px 15px #0006;transition:color .4s ease}
+.btn-liquid:before{content:"";position:absolute;z-index:-1;left:-100%;top:0;width:100%;height:100%;background:#3b82f6;transform:skewX(-25deg) scaleX(.0);transition:all .5s cubic-bezier(.77,0,.175,1)}
+.btn-liquid:hover:before{left:0;transform:skewX(0) scaleX(1)}
+.btn-liquid:hover{color:white}
+.btn-border{position:relative;background:transparent;color:#00f3ff;border:1px solid rgba(0,243,255,.2);padding:16px 32px;transition:background .3s,box-shadow .3s}
+.btn-border:before,.btn-border:after{content:"";position:absolute;width:0;height:0;border:2px solid transparent;pointer-events:none}
+.btn-border:before{top:-2px;left:-2px}
+.btn-border:after{right:-2px;bottom:-2px}
+.btn-border:hover{background:rgba(0,243,255,.07);box-shadow:0 0 20px #00f3ff22}
+.btn-border:hover:before{width:calc(100% + 4px);height:calc(100% + 4px);border-top-color:#00f3ff;border-right-color:#00f3ff;transition:width .2s ease-out,height .2s ease-out .2s}
+.btn-border:hover:after{width:calc(100% + 4px);height:calc(100% + 4px);border-bottom-color:#00f3ff;border-left-color:#00f3ff;transition:width .2s ease-out,height .2s ease-out .2s}
+.magnetic-wrap{perspective:500px}
+.btn-magnetic{position:relative;background:#1e1b4b;color:#fff;border:0;border-radius:30px;padding:13px 27px;overflow:hidden;box-shadow:0 5px 22px #4f46e555;transition:transform .18s ease-out}
+.btn-magnetic:before{content:"";position:absolute;inset:-40%;background:radial-gradient(circle,#818cf8 0%,transparent 68%);opacity:.35;transition:opacity .4s}
+.btn-magnetic:hover:before{opacity:.9}
+.btn-clip{position:relative;background:#ec4899;color:white;border:0;padding:15px 24px;overflow:hidden;letter-spacing:1px;text-transform:uppercase;clip-path:polygon(0 0,100% 0,100% 100%,0 100%);transition:clip-path .4s cubic-bezier(.86,0,.07,1),filter .3s}
+.btn-clip span{position:relative;z-index:1}
+.btn-clip:after{content:"";position:absolute;inset:0;background:#8b5cf6;clip-path:polygon(0 0,0 0,0 100%,0 100%);transition:clip-path .4s cubic-bezier(.86,0,.07,1)}
+.btn-clip:hover:after{clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+.btn-clip:hover{filter:drop-shadow(0 0 12px #ec489977)}
+.iso-wrap{perspective:700px}
+.btn-3d{background:#10b981;color:#06251c;border:0;border-radius:5px;padding:14px 24px;transform:rotateX(15deg) rotateY(-15deg);transform-style:preserve-3d;box-shadow:-1px 1px 0 #065f46,-4px 4px 0 #065f46,-10px 10px 0 #065f46,0 16px 20px #0006;transition:transform .2s ease,box-shadow .2s ease}
+.btn-3d:hover{transform:rotateX(15deg) rotateY(-15deg) translate(2px,-2px);box-shadow:-6px 6px 0 #065f46,-15px 15px 25px #0006}
+.btn-3d:active{transform:rotateX(15deg) rotateY(-15deg) translate(-4px,4px);box-shadow:0 0 0 #065f46,0 0 5px #0005}
+.code-panel{min-height:250px;background:#080e19;padding:22px 24px;overflow:auto}
+pre{margin:0;white-space:pre-wrap;tab-size:2;font:12px/1.65 "SFMono-Regular",Consolas,"Liberation Mono",monospace;color:#9db1c9}
+.selector{color:#f472b6}.property{color:#60a5fa}.value{color:#d4a6ff}.comment{color:#64748b}
+.code-heading{font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#64748b;margin-bottom:13px}
+@media(max-width:600px){body{padding:22px 10px}.tabs{justify-content:flex-start}.tab{flex:1 1 28%;padding:9px 5px;font-size:11px}.stage{height:190px}.code-panel{padding:17px 13px}pre{font-size:10.5px}}
+</style>
+</head>
+<body>
+<main class="app">
+<h1>Advanced Button Animations</h1>
+<section class="demo">
+<nav class="tabs" role="tablist" aria-label="Button animation demos">
+<button class="tab active" role="tab" aria-selected="true" data-demo="liquid">Liquid Fill</button>
+<button class="tab" role="tab" aria-selected="false" data-demo="border">Border Draw</button>
+<button class="tab" role="tab" aria-selected="false" data-demo="magnetic">Magnetic Glow</button>
+<button class="tab" role="tab" aria-selected="false" data-demo="clip">Clip Wipe</button>
+<button class="tab" role="tab" aria-selected="false" data-demo="iso">3D Isometric</button>
+</nav>
+<div class="stage">
+<div class="eyebrow" id="eyebrow">LIQUID FILL</div>
+<div id="buttonMount"><button class="demo-btn btn-liquid">Hover Me</button></div>
+</div>
+<div class="code-panel">
+<div class="code-heading">CSS — <span id="codeName">Liquid Fill</span></div>
+<pre id="code"></pre>
+</div>
+</section>
+</main>
+<script>
+const demos={
+liquid:{title:"LIQUID FILL",name:"Liquid Fill",button:'<button class="demo-btn btn-liquid">Hover Me</button>',code:`.btn-liquid {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 13px 23px;
+  border: 0;
+  border-radius: 8px;
+  background: #020817;
+  color: #fff;
+  transition: color 0.4s ease;
+}
+
+.btn-liquid::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: #3b82f6;
+  transform: skewX(-25deg) scaleX(0);
+  transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.btn-liquid:hover::before {
+  left: 0;
+  transform: skewX(0) scaleX(1);
+}`},
+border:{title:"NEON BORDER DRAW",name:"Border Draw",button:'<button class="demo-btn btn-border">Draw Border</button>',code:`.btn-border-draw {
+  background: transparent;
+  color: #00f3ff;
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  padding: 16px 32px;
+  position: relative;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.btn-border-draw::before,
+.btn-border-draw::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 2px solid transparent;
+}
+
+.btn-border-draw:hover::before {
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  border-top-color: #00f3ff;
+  border-right-color: #00f3ff;
+  transition: width 0.2s ease-out, height 0.2s ease-out 0.2s;
+}
+
+.btn-border-draw:hover::after {
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  border-bottom-color: #00f3ff;
+  border-left-color: #00f3ff;
+}`},
+magnetic:{title:"MAGNETIC TRACKING",name:"Magnetic Glow",button:'<div class="magnetic-wrap"><button class="demo-btn btn-magnetic">Follow Mouse</button></div>',code:`.btn-magnetic {
+  position: relative;
+  background: #1e1b4b;
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.btn-magnetic::before {
+  content: '';
+  position: absolute;
+  top: var(--y, 0);
+  left: var(--x, 0);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, #818cf8 0%, transparent 70%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.btn-magnetic:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* JavaScript tracks pointer position
+   and applies a subtle magnetic pull. */`},
+clip:{title:"CLIP-PATH WIPE",name:"Clip Wipe",button:'<button class="demo-btn btn-clip"><span>Glitch Reveal</span></button>',code:`.btn-clip {
+  position: relative;
+  background: #ec4899;
+  overflow: hidden;
+}
+
+.btn-clip span::after {
+  content: attr(data-text);
+  position: absolute;
+  background: #8f0172;
+  color: #38bdf8;
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+  transition: clip-path 0.4s cubic-bezier(0.86, 0, 0.07, 1);
+}
+
+.btn-clip:hover span::after {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}`},
+iso:{title:"3D ISOMETRIC",name:"3D Isometric",button:'<div class="iso-wrap"><button class="demo-btn btn-3d">Push Me ↗</button></div>',code:`.btn-3d {
+  transform: rotateX(15deg) rotateY(-15deg);
+  transform-style: preserve-3d;
+  box-shadow: -1px 1px 0 #065f46,
+    -4px 4px 0 #065f46,
+    -10px 10px 0 #065f46,
+    0 16px 20px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-3d:hover {
+  transform: rotateX(15deg) rotateY(-15deg)
+    translate(2px, -2px);
+  box-shadow: -6px 6px 0 #065f46,
+    -15px 15px 25px rgba(0,0,0,0.4);
+}
+
+.btn-3d:active {
+  transform: rotateX(15deg) rotateY(-15deg)
+    translate(-4px, 4px);
+  box-shadow: 0 0 0 #065f46,
+    0 0 5px rgba(0,0,0,0.2);
+}`}
+};
+const tabs=[...document.querySelectorAll('.tab')], mount=document.getElementById('buttonMount');
+function activate(key){
+ const d=demos[key];
+ tabs.forEach(t=>{const active=t.dataset.demo===key;t.classList.toggle('active',active);t.setAttribute('aria-selected',String(active))});
+ document.getElementById('eyebrow').textContent=d.title;
+ document.getElementById('codeName').textContent=d.name;
+ document.getElementById('code').textContent=d.code;
+ mount.innerHTML=d.button;
+ if(key==='magnetic'){
+  const b=mount.querySelector('button');
+  b.addEventListener('mousemove',e=>{
+   const r=b.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;
+   b.style.transform=`translate(${x*.18}px,${y*.22}px)`;
+   b.style.setProperty('--x',`${e.clientX-r.left}px`);b.style.setProperty('--y',`${e.clientY-r.top}px`);
+  });
+  b.addEventListener('mouseleave',()=>b.style.transform='translate(0,0)');
+ }
+}
+tabs.forEach(t=>t.addEventListener('click',()=>activate(t.dataset.demo)));
+activate('liquid');
+</script>
+</body>
+</html>
